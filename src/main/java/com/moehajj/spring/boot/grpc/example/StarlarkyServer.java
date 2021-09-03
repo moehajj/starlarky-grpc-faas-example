@@ -35,17 +35,20 @@ public class StarlarkyServer {
         @Override
         public void compute(StarlarkyRequestExample request, StreamObserver<StarlarkyReplyExample> responseObserver) {
 
+            // Extract input
             String script = String.format("%s\n%s", request.getScript(), INVOKER);
             String input = request.getInput();
 
-            ScriptContext input_context = new SimpleScriptContext();
+            // Set script input context
+            ScriptContext inputContext = new SimpleScriptContext();
             Bindings bindings = new SimpleBindings();
             bindings.put(INPUT_BINDING_KEY, input);
-            input_context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-            engine.setContext(input_context);
+            inputContext.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+            engine.setContext(inputContext);
 
+            // Execute Script
             try {
-                String output = (String) engine.executeScript(script, OUTPUT_BINDING_KEY, input_context);
+                String output = (String) engine.executeScript(script, OUTPUT_BINDING_KEY, inputContext);
                 StarlarkyReplyExample reply = StarlarkyReplyExample.newBuilder().setOutput(output).build();
 
                 responseObserver.onNext(reply);
